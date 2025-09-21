@@ -3,6 +3,7 @@
 A Go implementation of **RFC 7807/9457 - Problem Details for HTTP APIs**.
 
 <a href="https://github.com/lucasvillarinho/noproblem/blob/master/LICENSE"><img src="https://img.shields.io/github/license/lucasvillarinho/noproblem" alt="License"></a>
+<a href="https://github.com/lucasvillarinho/noproblem"><img src="https://img.shields.io/github/go-mod/go-version/lucasvillarinho/noproblem" alt="GitHub go.mod Go version"></a>
 <a href="https://goreportcard.com/report/github.com/lucasvillarinho/noproblem"><img src="https://goreportcard.com/badge/github.com/lucasvillarinho/noproblem" alt="Go Report Card"></a>
 
 ## RFC Background
