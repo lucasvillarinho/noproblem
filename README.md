@@ -11,11 +11,11 @@ This library implements the Problem Details standard based on:
 
 ## Features
 
-- ✅ Full RFC 9457 compliance
-- ✅ Go idiomatic Option pattern
-- ✅ JSON serialization with `application/problem+json` media type
-- ✅ Extensible with custom fields
-- ✅ Zero external dependencies
+- Full RFC 9457 compliance
+- Go idiomatic Option pattern
+- JSON serialization with `application/problem+json` media type
+- Extensible with custom fields
+- Zero external dependencies
 
 ## Installation
 
