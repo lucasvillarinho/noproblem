@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"maps"
-	"net/http"
 )
+
+const ContentTypeProblemJSON = "application/problem+json"
 
 // ProblemDetails represents a problem detail as defined in RFC 9457
 type ProblemDetails struct {
@@ -86,26 +86,4 @@ func NewProblem(problemType, title string, status int, opts ...Option) *ProblemD
 	}
 
 	return p
-}
-
-// WriteHTTPResponse writes the problem as an HTTP response
-func (p *ProblemDetails) WriteHTTPResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/problem+json")
-
-	if p.Status > 0 {
-		w.WriteHeader(p.Status)
-	} else {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-
-	encoder := json.NewEncoder(w)
-	return encoder.Encode(p)
-}
-
-// Error implements the error interface
-func (p ProblemDetails) Error() string {
-	if p.Detail != "" {
-		return fmt.Sprintf("%s: %s", p.Title, p.Detail)
-	}
-	return p.Title
 }

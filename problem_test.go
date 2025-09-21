@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"net/http/httptest"
 	"testing"
 )
 
@@ -78,57 +77,5 @@ func TestProblemJSONSerialization(t *testing.T) {
 
 	if unmarshaled["retry_after"] != float64(60) {
 		t.Errorf("Expected retry_after in JSON")
-	}
-}
-
-func TestProblemError(t *testing.T) {
-	// Test with detail
-	problem1 := NewProblem("https://example.com/problems/test", "Test Problem", 400,
-		WithDetail("This is a test problem"))
-
-	expected1 := "Test Problem: This is a test problem"
-	if problem1.Error() != expected1 {
-		t.Errorf("Expected Error() to return '%s', got '%s'", expected1, problem1.Error())
-	}
-
-	// Test without detail
-	problem2 := NewProblem("https://example.com/problems/test", "Test Problem", 400)
-
-	expected2 := "Test Problem"
-	if problem2.Error() != expected2 {
-		t.Errorf("Expected Error() to return '%s', got '%s'", expected2, problem2.Error())
-	}
-}
-
-func TestProblemHTTPResponse(t *testing.T) {
-	problem := NewProblem("https://example.com/problems/test", "Test Problem", 400,
-		WithDetail("This is a test problem"))
-
-	recorder := httptest.NewRecorder()
-	err := problem.WriteHTTPResponse(recorder)
-
-	if err != nil {
-		t.Fatalf("WriteHTTPResponse failed: %v", err)
-	}
-
-	// Check status code
-	if recorder.Code != 400 {
-		t.Errorf("Expected status code 400, got %d", recorder.Code)
-	}
-
-	// Check content type
-	contentType := recorder.Header().Get("Content-Type")
-	if contentType != "application/problem+json" {
-		t.Errorf("Expected Content-Type 'application/problem+json', got '%s'", contentType)
-	}
-
-	// Check body
-	var response map[string]interface{}
-	if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {
-		t.Fatalf("Failed to unmarshal response: %v", err)
-	}
-
-	if response["type"] != "https://example.com/problems/test" {
-		t.Errorf("Expected type in response")
 	}
 }
