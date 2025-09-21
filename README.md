@@ -59,6 +59,163 @@ custom := NewProblem("https://example.com/problems/custom", "Custom Problem", 42
     WithExtra("retry_after", 60))
 ```
 
+<details>
+<summary><b>Echo</b></summary>
+
+```go
+package main
+
+import (
+    "net/http"
+
+    "github.com/labstack/echo/v4"
+    np "github.com/lucasvillarinho/noproblem"
+)
+
+func main() {
+    e := echo.New()
+
+    e.POST("/users", func(c echo.Context) error {
+        problem := np.NewProblem(
+            "https://example.com/problems/validation",
+            "Validation Error",
+            400,
+            np.WithDetail("Email is required"),
+            np.WithInstance(c.Request().URL.Path),
+            np.WithExtra("field", "email"),
+        )
+
+        c.Response().Header().Set("Content-Type", np.ContentTypeProblemJSON)
+        c.Response().WriteHeader(problem.Status)
+        return c.JSON(problem.Status, problem)
+    })
+
+    e.Logger.Fatal(e.Start(":8080"))
+}
+```
+
+</details>
+
+<details>
+<summary><b>Gin</b></summary>
+
+```go
+package main
+
+import (
+    "net/http"
+
+    "github.com/gin-gonic/gin"
+    np "github.com/lucasvillarinho/noproblem"
+)
+
+func main() {
+    r := gin.Default()
+
+    r.POST("/users", func(c *gin.Context) {
+        problem := np.NewProblem(
+            "https://example.com/problems/validation",
+            "Validation Error",
+            400,
+            np.WithDetail("Email is required"),
+            np.WithInstance(c.Request.URL.Path),
+            np.WithExtra("field", "email"),
+        )
+
+        c.Header("Content-Type", np.ContentTypeProblemJSON)
+        c.JSON(problem.Status, problem)
+    })
+
+    r.Run(":8080")
+}
+```
+
+</details>
+
+<details>
+<summary><b>Fiber</b></summary>
+
+```go
+package main
+
+import (
+    "github.com/gofiber/fiber/v2"
+    np "github.com/lucasvillarinho/noproblem"
+)
+
+func main() {
+    app := fiber.New()
+
+    app.Post("/users", func(c *fiber.Ctx) error {
+        problem := np.NewProblem(
+            "https://example.com/problems/validation",
+            "Validation Error",
+            400,
+            np.WithDetail("Email is required"),
+            np.WithInstance(c.Path()),
+            np.WithExtra("field", "email"),
+        )
+
+        c.Set("Content-Type", np.ContentTypeProblemJSON)
+        return c.Status(problem.Status).JSON(problem)
+    })
+
+    app.Listen(":8080")
+}
+```
+
+</details>
+
+<details>
+<summary><b>Standard HTTP</b></summary>
+
+```go
+package main
+
+import (
+    "log"
+    "net/http"
+
+    np "github.com/lucasvillarinho/noproblem"
+)
+
+func main() {
+    http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+        if r.Method != http.MethodPost {
+            problem := np.NewProblem(
+                "https://example.com/problems/method-not-allowed",
+                "Method Not Allowed",
+                405,
+                np.WithDetail("Only POST method is allowed"),
+                np.WithInstance(r.URL.Path),
+            )
+
+            w.Header().Set("Content-Type", np.ContentTypeProblemJSON)
+            w.WriteHeader(problem.Status)
+            problem.WriteHTTPResponse(w)
+            return
+        }
+
+        problem := np.NewProblem(
+            "https://example.com/problems/validation",
+            "Validation Error",
+            400,
+            np.WithDetail("Email is required"),
+            np.WithInstance(r.URL.Path),
+            np.WithExtra("field", "email"),
+        )
+
+        w.Header().Set("Content-Type", np.ContentTypeProblemJSON)
+        w.WriteHeader(problem.Status)
+        problem.WriteHTTPResponse(w)
+    })
+
+    log.Fatal(http.ListenAndServe(":8080", nil))
+}
+```
+
+</details>
+
 ## Testing
 
 ```bash
