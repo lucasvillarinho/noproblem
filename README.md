@@ -6,8 +6,8 @@ A Go implementation of **RFC 7807/9457 - Problem Details for HTTP APIs**.
 
 This library implements the Problem Details standard based on:
 
-- **RFC 7807** (2016) - Original Problem Details specification
-- **RFC 9457** (2023) - Updated specification that obsoletes RFC 7807
+- **[RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807)** (2016) - Original Problem Details specification
+- **[RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html)** (2023) - Updated specification that obsoletes RFC 7807
 
 ## Features
 
