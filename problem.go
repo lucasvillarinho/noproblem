@@ -1,4 +1,4 @@
-package main
+package noproblem
 
 import (
 	"encoding/json"
