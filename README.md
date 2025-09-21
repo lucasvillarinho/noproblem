@@ -225,7 +225,7 @@ go test -v
 
 ## RFC Compliance
 
-**RFC 9457 features implemented:**
+**RFC 9457/7807 features implemented:**
 
 - `application/problem+json` media type
 - All standard members: `type`, `title`, `status`, `detail`, `instance`
