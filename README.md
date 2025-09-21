@@ -2,6 +2,8 @@
 
 A Go implementation of **RFC 7807/9457 - Problem Details for HTTP APIs**.
 
+<a href="https://github.com/lucasvillarinho/noproblem/blob/master/LICENSE"><img src="https://img.shields.io/github/license/lucasvillarinho/noproblem" alt="License"></a>
+
 ## RFC Background
 
 This library implements the Problem Details standard based on:
