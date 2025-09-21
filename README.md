@@ -1,4 +1,4 @@
-# `noproblem`
+# `🚩 noproblem`
 
 A Go implementation of **RFC 7807/9457 - Problem Details for HTTP APIs**.
 
