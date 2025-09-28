@@ -2,6 +2,8 @@ package noproblem
 
 import (
 	"encoding/json"
+	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -77,5 +79,73 @@ func TestProblemJSONSerialization(t *testing.T) {
 
 	if unmarshaled["retry_after"] != float64(60) {
 		t.Errorf("Expected retry_after in JSON")
+	}
+}
+
+func TestProblemJSONFieldOrder(t *testing.T) {
+	validationErrors := []map[string]string{
+		{"field": "application_name", "detail": "Application name is required"},
+		{"field": "domain", "detail": "Domain must be a valid URL"},
+		{"field": "callback_url", "detail": "Callback is required and must be a valid URL"},
+		{"field": "session_model.session_duration", "detail": "Session duration must be at least 3600 seconds (1 hour)"},
+	}
+
+	problem := NewProblem(
+		"https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/400",
+		"Your request is not valid.",
+		http.StatusUnprocessableEntity,
+		WithInstance("/api/v1/settings"),
+		WithExtra("errors", validationErrors),
+	)
+
+	jsonBytes, err := json.Marshal(problem)
+	if err != nil {
+		t.Fatalf("Failed to marshal problem: %v", err)
+	}
+
+	jsonString := string(jsonBytes)
+
+	expectedOrder := []string{
+		`"type":`,
+		`"title":`,
+		`"status":`,
+		`"instance":`,
+		`"errors":`,
+	}
+
+	lastIndex := -1
+	for _, field := range expectedOrder {
+		index := strings.Index(jsonString, field)
+		if index == -1 {
+			t.Errorf("Field %s not found in JSON", field)
+			continue
+		}
+
+		if index <= lastIndex {
+			t.Errorf("Field %s is not in expected order (index %d, previous %d)", field, index, lastIndex)
+		}
+
+		lastIndex = index
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(jsonBytes, &result); err != nil {
+		t.Errorf("Generated JSON is not valid: %v", err)
+	}
+
+	if result["type"] != "https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Reference/Status/400" {
+		t.Errorf("Unexpected type value")
+	}
+
+	if result["title"] != "Your request is not valid." {
+		t.Errorf("Unexpected title value")
+	}
+
+	if result["status"] != float64(422) {
+		t.Errorf("Unexpected status value")
+	}
+
+	if result["instance"] != "/api/v1/settings" {
+		t.Errorf("Unexpected instance value")
 	}
 }

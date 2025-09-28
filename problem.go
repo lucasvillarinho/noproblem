@@ -2,7 +2,7 @@ package noproblem
 
 import (
 	"encoding/json"
-	"maps"
+	"fmt"
 )
 
 const ContentTypeProblemJSON = "application/problem+json"
@@ -18,31 +18,54 @@ type ProblemDetails struct {
 }
 
 // MarshalJSON implements custom JSON marshaling to include extra fields
+// with guaranteed field order according to RFC 9457
 func (p ProblemDetails) MarshalJSON() ([]byte, error) {
-	type Alias ProblemDetails
-	aux := struct {
-		Alias
+	base := []byte(`{`)
+
+	fields := []struct {
+		Key   string
+		Value any
 	}{
-		Alias: Alias(p),
+		{"type", p.Type},
+		{"title", p.Title},
+		{"status", p.Status},
+		{"detail", p.Detail},
+		{"instance", p.Instance},
 	}
 
-	data, err := json.Marshal(aux.Alias)
-	if err != nil {
-		return nil, err
+	first := true
+	for _, f := range fields {
+		if f.Value == "" || f.Value == 0 {
+			continue
+		}
+
+		val, err := json.Marshal(f.Value)
+		if err != nil {
+			return nil, err
+		}
+
+		if !first {
+			base = append(base, ',')
+		}
+		base = append(base, fmt.Sprintf(`"%s":%s`, f.Key, val)...)
+		first = false
 	}
 
-	if len(p.Extra) == 0 {
-		return data, nil
+	for k, v := range p.Extra {
+		val, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+
+		if !first {
+			base = append(base, ',')
+		}
+		base = append(base, fmt.Sprintf(`"%s":%s`, k, val)...)
+		first = false
 	}
 
-	var base map[string]interface{}
-	if err := json.Unmarshal(data, &base); err != nil {
-		return nil, err
-	}
-
-	maps.Copy(base, p.Extra)
-
-	return json.Marshal(base)
+	base = append(base, '}')
+	return base, nil
 }
 
 // Option is a function that modifies a ProblemDetails
